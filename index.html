@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Paid Values</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <h1>User List</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Name</th>
+        <th>Current Money</th>
+        <th>Paid</th>
+        <th>Added Money</th>
+        <th>Update Paid</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
+
+  <script>
+    // Fetch users from the server and render them in the table
+    axios.get('http://localhost:3000/users')
+      .then(response => {
+        const users = response.data;
+        const userTableBody = document.getElementById('userTableBody');
+
+        users.forEach(user => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${user._id}</td>
+            <td>${user.name}</td>
+            <td>${user.currentMoney}</td>
+            <td>${user.paid}</td>
+            <td><input type="number" class="addedMoneyInput" data-userid="1" /></td>
+            <td><button type="button" onclick="updateUserByName('${user.name}',this)">Update</button></td>
+          `;
+          userTableBody.appendChild(row);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching users:', error);
+      });
+
+async function updateUserByName(name, buttonElement) {
+    try {
+      // Retrieve the associated input field value
+      const inputField = buttonElement.parentNode.previousElementSibling.querySelector('.addedMoneyInput');
+      const updatedMoneyValue = parseFloat(inputField.value);
+        console.log(updatedMoneyValue);
+      const response = await axios.put(`http://localhost:3000/users/${name}/add-money`, {
+        addedMoney: updatedMoneyValue,
+      });
+
+      console.log('User updated successfully:', response.data);
+      // Handle the updated user data as needed
+    } catch (error) {
+      console.error('Error updating user:', error);
+      // Handle errors
+    }
+  }
+    
+  </script>
+</body>
+</html>
